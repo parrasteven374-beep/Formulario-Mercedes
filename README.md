@@ -108,8 +108,3 @@ img/   fotos de los carros, logo e íconos
 
 Para cambiar carros, preguntas, pesos o textos, editar `js/config.js`.
 
-## Pendientes
-
-- Poner la URL oficial de la política de privacidad (hoy los enlaces son `#`).
-- Validar precios, descripciones y datos técnicos con información oficial de Mercedes-Benz.
-- Conectar el envío del formulario al destino real.
