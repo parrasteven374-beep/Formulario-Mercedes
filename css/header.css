@@ -1,0 +1,121 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) var(--space-3) 0 var(--space-2);
+  background: #000;
+  border-bottom: 1px solid rgba(201, 204, 209, 0.16);
+}
+.site-header__brand { display: flex; align-items: center; gap: var(--space-3); }
+.site-header__home { display: flex; align-items: center; justify-content: center; min-width: var(--tap-min); min-height: var(--tap-min); padding: 2px 4px; border-radius: var(--radius-sm); -webkit-tap-highlight-color: transparent; }
+.site-header__logo { width: 38px; height: 40px; object-fit: contain; }
+
+/* Hamburguesa: 3 líneas -> X solo con transform y opacity (160ms) */
+.menu-btn {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--color-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.menu-btn__line {
+  position: absolute;
+  left: 13px;
+  top: 23px;
+  width: 22px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+  transition: transform var(--motion-fast) var(--ease-out), opacity var(--motion-fast) var(--ease-out);
+}
+.menu-btn__line:nth-child(1) { transform: translateY(-7px); }
+.menu-btn__line:nth-child(3) { transform: translateY(7px); }
+.menu-btn[aria-expanded="true"] .menu-btn__line:nth-child(1) { transform: rotate(45deg); }
+.menu-btn[aria-expanded="true"] .menu-btn__line:nth-child(2) { opacity: 0; }
+.menu-btn[aria-expanded="true"] .menu-btn__line:nth-child(3) { transform: rotate(-45deg); }
+
+/* Menú a pantalla completa, bajo el header (el botón queda visible para cerrarlo) */
+.site-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: calc(var(--header-h) + env(safe-area-inset-top, 0px)) var(--space-6) var(--space-7);
+  background: #000;
+  overflow-y: auto;
+}
+.site-menu__list { list-style: none; margin: 0; padding: 0; max-width: var(--content-max); width: 100%; margin-inline: auto; }
+.site-menu__link {
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+  border-bottom: 1px solid var(--color-line-soft);
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 6vw, 2rem);
+  color: var(--color-text);
+  text-decoration: none;
+}
+.site-menu__link:hover { color: var(--color-accent); }
+
+/* Navegación de escritorio: oculta en móvil */
+.site-nav { display: none; }
+
+@media (min-width: 1024px) {
+  .site-header {
+    justify-content: flex-start;
+    gap: var(--space-6);
+    padding-inline: max(var(--space-7), calc((100% - var(--container-max)) / 2 + var(--space-7)));
+  }
+  .menu-btn { display: none; }
+  .site-header__home { padding: 4px 6px; }
+  .site-header__logo { width: 44px; height: 46px; }
+
+  .site-nav { display: flex; align-items: center; gap: var(--space-6); margin-left: auto; }
+  .site-nav__link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-silver);
+    text-decoration: none;
+    transition: color var(--motion-fast) var(--ease-out);
+  }
+  .site-nav__link::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 6px;
+    height: 1px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--motion-medium) var(--ease-out);
+  }
+  .site-nav__link:hover { color: var(--color-text); }
+  .site-nav__link:hover::after { transform: scaleX(1); }
+  .site-nav__cta { min-height: 44px; padding: 0 var(--space-5); font-size: 0.8125rem; }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .site-nav__link, .site-nav__link::after { transition: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Sin desplazamiento: la X se forma con un cambio de opacidad/forma inmediato */
+  .menu-btn__line { transition: opacity var(--motion-fast) linear; }
+}

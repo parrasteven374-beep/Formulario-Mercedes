@@ -1,0 +1,149 @@
+.test { padding-block: var(--space-5) var(--space-7); }
+
+.test__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--tap-min);
+  margin-bottom: var(--space-3);
+}
+.test__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+  padding: 0 var(--space-3) 0 0;
+  background: none;
+  border: 0;
+  color: var(--color-silver);
+  cursor: pointer;
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: opacity var(--motion-fast) var(--ease-out);
+}
+.test__back:hover { opacity: 0.75; }
+.test__count {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Progreso: scaleX, nunca width */
+.progress { height: 3px; background: var(--color-line-soft); border-radius: 2px; overflow: hidden; }
+.progress__bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-silver), var(--color-accent));
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform var(--motion-medium) var(--ease-out);
+}
+
+.test__stage { padding-top: var(--space-7); overflow-x: clip; }
+
+.question { border: 0; padding: 0; margin: 0; min-width: 0; }
+.question__title {
+  float: left; /* legend sin comportamiento especial de fieldset */
+  width: 100%;
+  margin-bottom: var(--space-6);
+  font-size: clamp(1.625rem, 6.5vw, 2.125rem);
+  font-weight: 500;
+  line-height: 1.25;
+}
+/* Todas las tarjetas miden lo mismo (--card-h), aunque el texto sea corto. El valor cubre la opción más larga a cada ancho. */
+.question__options { --card-h: 96px; clear: both; display: grid; grid-auto-rows: 1fr; gap: var(--space-3); }
+
+/* Tarjeta de opción */
+.option { position: relative; display: block; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.option__card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--card-h);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  line-height: 1.4;
+  transition: transform var(--motion-fast) var(--ease-out);
+}
+.option__card::after { /* borde de acento: aparece por opacity */
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--color-accent);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-fast) var(--ease-out);
+}
+.option:hover .option__card::after { opacity: 0.5; }
+.option:active .option__card { transform: scale(0.985); }
+
+/* Indicador propio: círculo que se llena */
+.option__mark {
+  position: relative;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--color-silver);
+  border-radius: 50%;
+}
+.option__mark::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  transform: scale(0);
+  transition: transform var(--motion-fast) var(--ease-out);
+}
+.option__input:checked + .option__card::after { opacity: 1; }
+.option__input:checked + .option__card .option__mark::after { transform: scale(1); }
+.option__input:checked + .option__card { background: var(--color-surface-2); }
+
+/* Foco de teclado bien marcado */
+.option__input:focus-visible + .option__card {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option__card, .option__mark::after { transition: none; }
+  .option:active .option__card { transform: none; }
+  .progress__bar { transition: none; }
+}
+
+@media (min-width: 430px) {
+  .question__options { --card-h: 80px; }
+}
+
+@media (min-width: 768px) {
+  .test { padding-block: var(--space-7); }
+  .option__card { padding: var(--space-4) var(--space-5); }
+  .option:hover .option__card { background: var(--color-surface-2); }
+}
+
+@media (min-width: 1024px) {
+  .test { max-width: 960px; padding-block: var(--space-8) var(--space-9); }
+  .test__header { margin-bottom: var(--space-4); }
+  .test__back { font-size: 0.8125rem; letter-spacing: 0.14em; }
+  .test__back:hover { color: var(--color-text); opacity: 1; }
+  .test__count { font-size: 0.875rem; letter-spacing: 0.2em; }
+  .progress { height: 4px; }
+  .test__stage { padding-top: var(--space-8); }
+  .question__title { margin-bottom: var(--space-7); font-size: clamp(2.25rem, 3.4vw, 3rem); line-height: 1.2; text-wrap: balance; }
+  .question__options { --card-h: 104px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+  .option__card { padding: var(--space-5) var(--space-6); font-size: 1.0625rem; }
+  .option__card { transition: transform var(--motion-fast) var(--ease-out), background-color var(--motion-fast) var(--ease-out); }
+  .option:hover .option__card { transform: translateY(-2px); }
+  .option:active .option__card { transform: scale(0.985); }
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .option__card { transition: none; }
+  .option:hover .option__card, .option:active .option__card { transform: none; }
+}

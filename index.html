@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es-CR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Descubre tu Mercedes-Benz ideal </title>
+  <meta name="description" content="Responde 10 preguntas y descubre qué Mercedes-Benz va mejor con tu estilo.">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="img/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <link rel="manifest" href="img/site.webmanifest">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/inicio.css">
+  <link rel="stylesheet" href="css/loop.css">
+  <link rel="stylesheet" href="css/test.css">
+  <link rel="stylesheet" href="css/resultado.css">
+  <link rel="stylesheet" href="css/match.css">
+</head>
+<body>
+
+  <!-- ============ HEADER (visible en las 3 pantallas) ============ -->
+  <header class="site-header">
+    <button type="button" class="menu-btn" id="menu-btn" aria-label="Abrir menú" aria-expanded="false" aria-controls="site-menu">
+      <span class="menu-btn__line"></span>
+      <span class="menu-btn__line"></span>
+      <span class="menu-btn__line"></span>
+    </button>
+    <div class="site-header__brand">
+      <!-- TODO(cliente): entregar el sello oficial "140 Years of Innovation" (no existe en /img; no se dibuja ni se inventa) -->
+      <a class="site-header__home" id="brand-home" href="#" aria-label="Mercedes-Benz, ir al inicio">
+        <img class="site-header__logo" src="img/logomer.png" width="38" height="40" alt="">
+      </a>
+    </div>
+    <!-- Navegación de escritorio (≥1024px). En móvil está oculta y se usa el menú hamburguesa -->
+    <nav class="site-nav" aria-label="Navegación principal">
+      <a class="site-nav__link" href="#" data-nav="home">Inicio</a>
+      <!-- TODO(cliente): reemplazar href="#" por la URL oficial de la política de privacidad -->
+      <a class="site-nav__link" href="#" data-privacy-link>Privacidad</a>
+      <button type="button" class="btn btn--primary site-nav__cta" data-action="start">Iniciar test</button>
+    </nav>
+  </header>
+
+  <nav class="site-menu" id="site-menu" aria-label="Menú principal" hidden>
+    <ul class="site-menu__list">
+      <li><a class="site-menu__link" href="#" data-menu="home">Inicio</a></li>
+      <li><a class="site-menu__link" href="#" data-menu="start">Iniciar test</a></li>
+      <!-- TODO(cliente): reemplazar href="#" por la URL oficial de la política de privacidad -->
+      <li><a class="site-menu__link" href="#" data-menu="privacy">Política de privacidad</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============ INICIO ============ -->
+  <main id="screen-inicio" class="screen" data-screen="inicio" tabindex="-1">
+
+    <div class="hero">
+      <section id="footer-cta" class="footer-cta" aria-labelledby="inicio-title">
+        <div class="container footer-cta__inner">
+          <p class="eyebrow" data-seq><span class="nowrap">Mercedes-Benz</span> Costa Rica</p>
+          <h1 id="inicio-title" class="footer-cta__title" data-seq>Descubre qué <span class="nowrap">Mercedes-Benz</span> va contigo</h1>
+          <p class="footer-cta__text" data-seq>Responde 10 preguntas y descubre con cuál tienes más afinidad.</p>
+        </div>
+      </section>
+
+      <!-- Pasarela de modelos: las imágenes y el nombre salen de MB.config.CARS (js/loop.js) -->
+      <section class="hero-loop" aria-label="Modelos disponibles">
+        <div class="loop" id="loop">
+          <div class="loop__stage" id="loop-stage">
+            <span class="loop__track" aria-hidden="true"></span>
+          </div>
+          <p class="loop__name" id="loop-name"><span class="loop__model" id="loop-model"></span></p>
+        </div>
+      </section>
+
+      <section class="final-cta" aria-labelledby="final-cta-q">
+        <div class="container final-cta__inner">
+          <p class="final-cta__question" id="final-cta-q">¿Quieres saber qué carro es el ideal para ti?</p>
+          <button type="button" class="btn btn--primary" data-action="start">Iniciar test</button>
+        </div>
+      </section>
+
+      <!-- Marca para detectar el inicio del scroll con IntersectionObserver (sin listeners de scroll) -->
+      <span class="scroll-hint-sentinel" id="scroll-hint-sentinel" aria-hidden="true"></span>
+
+      <!-- Indicador de scroll: visible por defecto (sin JS también). El texto cambia según el tipo de puntero (CSS). -->
+      <button type="button" class="scroll-hint" id="scroll-hint" aria-label="Ver los modelos">
+        <span class="scroll-hint__label scroll-hint__label--touch" aria-hidden="true">Desliza para descubrir</span>
+        <span class="scroll-hint__label scroll-hint__label--pointer" aria-hidden="true">Scroll para descubrir</span>
+        <span class="scroll-hint__line" aria-hidden="true"><i class="scroll-hint__dot"></i></span>
+      </button>
+    </div>
+
+    <!-- Historia de modelos: un panel por carro, generado en JS desde MB.config.CARS (foto + datos que se despliegan al scroll) -->
+    <section class="story" id="showcase" aria-label="Modelos Mercedes-Benz" tabindex="-1"></section>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <img class="site-footer__logo" src="img/logomer.png" width="490" height="509" alt="Mercedes-Benz">
+        <p class="site-footer__legal">
+          Usaremos tus datos únicamente para que un asesor te contacte.
+          <!-- TODO(cliente): reemplazar por la URL oficial de la política de privacidad -->
+          <a href="#" data-privacy-link>Política de privacidad</a>
+        </p>
+        <!-- Enlaces del pie: solo escritorio -->
+        <nav class="site-footer__nav" aria-label="Enlaces del pie">
+          <a href="#" data-nav="home">Inicio</a>
+          <a href="#" data-privacy-link>Política de privacidad</a>
+        </nav>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ============ TEST ============ -->
+  <section id="screen-test" class="screen" data-screen="test" tabindex="-1" hidden aria-label="Test de afinidad">
+    <div class="container test">
+      <header class="test__header">
+        <button type="button" class="test__back" id="test-back" aria-label="Volver a la pregunta anterior" hidden>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          <span>Atrás</span>
+        </button>
+        <p class="test__count" id="test-count" aria-live="polite"></p>
+      </header>
+      <div class="progress" role="progressbar" aria-label="Progreso del test" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="test-progress">
+        <div class="progress__bar" id="test-progress-bar"></div>
+      </div>
+      <div class="test__stage" id="test-stage"></div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTADO ============ -->
+  <section id="screen-resultado" class="screen" data-screen="resultado" tabindex="-1" hidden aria-labelledby="result-name">
+    <div class="container result">
+      <p class="result__eyebrow" data-step="1">Tu <span class="nowrap">Mercedes-Benz</span> ideal es…</p>
+
+      <div class="studio" data-step="1">
+        <img id="result-img" class="studio__img" width="300" height="170" alt="">
+      </div>
+
+      <div data-step="2">
+        <h2 id="result-name" class="result__name screen__title" tabindex="-1"></h2>
+        <p class="result__tagline" id="result-tagline"></p>
+        <p class="result__affinity" id="result-affinity"></p>
+      </div>
+
+      <div data-step="3">
+        <p class="result__desc" id="result-desc"></p>
+        <ul class="result__features" id="result-features"></ul>
+      </div>
+
+      <div class="lead" data-step="4">
+        <h3 class="lead__title">Que un asesor te contacte</h3>
+        <form id="lead-form" novalidate>
+          <div class="field">
+            <label for="f-name">Nombre</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" aria-describedby="e-name">
+            <p class="field__error" id="e-name" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="f-phone">Teléfono</label>
+            <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" aria-describedby="e-phone">
+            <p class="field__error" id="e-phone" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="f-email">Correo electrónico</label>
+            <input id="f-email" name="email" type="email" inputmode="email" autocomplete="email" aria-describedby="e-email">
+            <p class="field__error" id="e-email" aria-live="polite"></p>
+          </div>
+          <div class="field field--check">
+            <label class="check" for="f-consent">
+              <input id="f-consent" name="consent" type="checkbox" class="sr-only" aria-describedby="e-consent">
+              <span class="check__box" aria-hidden="true"></span>
+              <span class="check__text">Autorizo el tratamiento de mis datos personales para que <span class="nowrap">Mercedes-Benz</span> Costa Rica y sus asesores me contacten. Consulta la <a href="#" data-privacy-link>política de privacidad</a>.</span>
+            </label>
+            <p class="field__error" id="e-consent" aria-live="polite"></p>
+          </div>
+
+          <button type="submit" class="btn btn--primary lead__submit" id="lead-submit">Quiero que un asesor me contacte</button>
+          <p class="lead__status" id="lead-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="lead__done" id="lead-done" hidden>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>
+          <p id="lead-done-text"></p>
+        </div>
+
+        <button type="button" class="btn btn--ghost result__retry" id="retry">Repetir test</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MATCH (pantalla de transición entre el test y el resultado) ============ -->
+  <div class="match" id="match" role="status" aria-live="polite" tabindex="-1" hidden>
+    <div class="match__content">
+      <img class="match__logo" id="match-logo" src="img/logomer.png" width="490" height="509" alt="" aria-hidden="true">
+      <p class="match__eyebrow" id="match-eyebrow">Tu Mercedes-Benz ideal</p>
+      <div class="match__row" id="match-row">
+        <p class="match__word" id="match-word" aria-label="Match"><span aria-hidden="true">M</span><span aria-hidden="true">A</span><span aria-hidden="true">T</span><span aria-hidden="true">C</span><span aria-hidden="true">H</span></p>
+      </div>
+      <p class="match__sub" id="match-sub"></p>
+    </div>
+
+    <div class="match__stage" aria-hidden="true">
+      <div class="match__road">
+        <i class="match__lane match__lane--far"></i>
+        <i class="match__lane match__lane--mid"></i>
+        <i class="match__lane match__lane--near"></i>
+      </div>
+      <div class="match__car" id="match-car"><img id="match-img" width="300" height="170" alt=""></div>
+    </div>
+
+    <button type="button" class="match__skip" id="match-skip">Saltar</button>
+  </div>
+
+  <!-- Botón para volver arriba en el Inicio (lo muestra js/inicio.js al pasar la mitad del hero) -->
+  <button type="button" class="to-top" id="to-top" aria-label="Volver arriba">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 14.5l7-7 7 7"/></svg>
+    <span>Subir</span>
+  </button>
+
+  <!-- Scripts clásicos (funcionan con doble clic y con servidor). Orden de carga explícito. -->
+  <script defer src="js/config.js"></script>
+  <script defer src="js/motion.js"></script>
+  <script defer src="js/scoring.js"></script>
+  <script defer src="js/inicio.js"></script>
+  <script defer src="js/loop.js"></script>
+  <script defer src="js/test.js"></script>
+  <script defer src="js/resultado.js"></script>
+  <script defer src="js/match.js"></script>
+  <script defer src="js/form.js"></script>
+  <script defer src="js/header.js"></script>
+  <script defer src="js/app.js"></script>
+</body>
+</html>

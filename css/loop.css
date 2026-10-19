@@ -1,0 +1,118 @@
+/* ===== Bucle infinito: todos los carros miran y avanzan hacia la derecha sobre una línea de luz =====
+   Cada carro recorre 5 · --gap de izquierda a derecha con un único @keyframes (solo transform + opacity, linear:
+   movimiento continuo). Escalonados con animation-delay negativo, siempre hay uno al centro (más grande y nítido)
+   y los vecinos asoman a los lados. Al salir por la derecha el mismo carro reaparece por la izquierda. */
+.loop {
+  --loop-t: 3s;        /* tiempo que cada carro tarda en ceder el centro al siguiente */
+  --gap-n: 270;        /* separación entre carros en px (sin unidad, para poder dividir) */
+  --gap: calc(var(--gap-n) * 1px);
+  --car-w: 230px;
+  --car-h: 115px;
+  width: 100%;
+}
+.loop__stage {
+  position: relative;
+  height: calc(var(--car-h) + var(--space-5));
+  overflow-x: clip;   /* los carros entran y salen por los bordes sin crear scroll horizontal */
+  overflow-y: visible;
+}
+
+/* Línea de luz: la misma pista del hero (plata → blanco → plata) con halo azul debajo; estática, a la altura de las ruedas */
+.loop__track {
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(var(--car-h) - 4px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-silver) 25%, #fff 50%, var(--color-silver) 75%, transparent);
+  pointer-events: none;
+}
+.loop__track::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 90%;
+  height: 90px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(0, 173, 239, 0.28), rgba(201, 204, 209, 0.10) 45%, transparent 70%);
+}
+/* Foco de luz estático bajo el carro central */
+.loop__stage::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(var(--car-h) - 40px);
+  width: calc(var(--car-w) * 1.5);
+  height: 70px;
+  translate: -50% 0;
+  background: radial-gradient(closest-side, rgba(201, 224, 245, 0.34), rgba(0, 173, 239, 0.12) 55%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Estado base (sin animación): carros centrados y ocultos; solo .is-active se ve (reduced motion) */
+.loop__car {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: var(--car-w);
+  height: var(--car-h);
+  margin-left: calc(var(--car-w) / -2);
+  object-fit: contain;
+  object-position: 50% 100%;
+  transform-origin: 50% 100%; /* las ruedas quedan en el suelo al escalar */
+  opacity: 0;
+}
+.loop__car.is-active { opacity: 1; z-index: 1; }
+
+.loop__name {
+  display: flex;
+  justify-content: center;
+  min-height: 2.25rem; /* reservado: el cambio de nombre no mueve el layout */
+  margin-top: var(--space-3);
+}
+.loop__model {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 6.5vw, 2rem);
+  line-height: 1.1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loop__car {
+    animation: loop-drive calc(var(--loop-t) * 5) linear infinite;
+    animation-delay: calc(var(--loop-t) * (var(--i) - 7.5)); /* el carro i está al centro en t = i · --loop-t */
+    will-change: transform, opacity;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loop__car { transition: opacity var(--motion-fast) linear; }
+}
+
+@keyframes loop-drive {
+  0% { transform: translateX(calc(var(--gap) * -2.5)) scale(0.66); opacity: 0; z-index: 0; }
+  10% { transform: translateX(calc(var(--gap) * -2.0)) scale(0.72); opacity: 0.12; z-index: 1; }
+  30% { transform: translateX(calc(var(--gap) * -1.0)) scale(0.84); opacity: 0.6; z-index: 3; }
+  40% { transform: translateX(calc(var(--gap) * -0.5)) scale(0.93); opacity: 0.88; z-index: 6; }
+  50% { transform: translateX(calc(var(--gap) * 0)) scale(1); opacity: 1; z-index: 10; }
+  60% { transform: translateX(calc(var(--gap) * 0.5)) scale(0.93); opacity: 0.88; z-index: 6; }
+  70% { transform: translateX(calc(var(--gap) * 1.0)) scale(0.84); opacity: 0.6; z-index: 3; }
+  90% { transform: translateX(calc(var(--gap) * 2.0)) scale(0.72); opacity: 0.12; z-index: 1; }
+  100% { transform: translateX(calc(var(--gap) * 2.5)) scale(0.66); opacity: 0; z-index: 0; }
+}
+
+@media (min-width: 768px) {
+  .loop { --gap-n: 340; --car-w: 270px; --car-h: 135px; }
+}
+@media (min-width: 1024px) {
+  .loop { --gap-n: 440; --car-w: 330px; --car-h: 165px; }
+  .loop__model { font-size: 2.5rem; }
+}
+
+/* Pantallas bajas: pasarela más compacta para que título, pasarela, botón (e indicador) quepan en el primer pliegue */
+@media (max-height: 700px) {
+  .loop { --car-w: 190px; --car-h: 95px; --gap-n: 230; }
+  .loop__stage { height: calc(var(--car-h) + var(--space-4)); }
+  .loop__name { margin-top: var(--space-2); min-height: 2rem; }
+}
+@media (min-width: 1024px) and (max-height: 900px) {
+  .loop { --car-w: 280px; --car-h: 140px; --gap-n: 380; }
+}

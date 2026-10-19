@@ -1,0 +1,182 @@
+/* ===== MATCH: transición sobria entre el test y el resultado =====
+   Tipografía fina y espaciada, trazos de una línea, luz contenida y movimiento suave (sin rebotes ni neón). */
+html.is-matching { overflow: hidden; }
+
+.match {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow: hidden;
+  background:
+    radial-gradient(55% 40% at 50% 38%, rgba(201, 224, 245, 0.07), transparent 70%),
+    radial-gradient(120% 80% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.6) 100%),
+    #050608;
+}
+.match:focus { outline: none; }
+
+/* ---- Palabra ---- */
+.match__content {
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(clamp(24px, 5vh, 56px) + env(safe-area-inset-top, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-inline: var(--space-4);
+  text-align: center;
+}
+.match__eyebrow {
+  margin-bottom: var(--space-5);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  margin-right: -0.42em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.match__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  font-size: clamp(3rem, 15vw, 6rem);
+  color: var(--color-silver);
+}
+.match__word {
+  display: flex;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1em;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--color-text);
+}
+.match__word span { display: inline-block; padding-inline: 0.07em; }
+.match__logo {
+  width: 56px;
+  height: auto;
+  margin-bottom: var(--space-5);
+}
+
+.match__sub {
+  margin-top: var(--space-5);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+/* Nombre del modelo entre dos filetes finos */
+.match__sub strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  color: var(--color-text);
+}
+.match__sub strong::before, .match__sub strong::after {
+  content: "";
+  width: clamp(28px, 10vw, 72px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-silver));
+}
+.match__sub strong::after { transform: scaleX(-1); }
+
+/* ---- Escenario: carretera + carro ---- */
+.match__stage {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 44%;
+  pointer-events: none;
+}
+.match__road {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 52%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, transparent 100%);
+}
+/* Horizonte: filete plateado que se desvanece en los extremos */
+.match__road::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 204, 209, 0.7) 30%, #fff 50%, rgba(201, 204, 209, 0.7) 70%, transparent);
+}
+/* Líneas de carretera: rayas finas que corren hacia la izquierda; más cerca = más rápidas */
+.match__lane {
+  --p: 120px; --d: 56px; --t: 0.5s;
+  position: absolute;
+  left: 0;
+  width: calc(100% + var(--p));
+  height: 1px;
+  background: repeating-linear-gradient(90deg, rgba(244, 245, 246, 0.8) 0 var(--d), transparent var(--d) var(--p));
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  animation: match-lane var(--t) linear infinite;
+  animation-play-state: paused;
+}
+.match__lane--far  { --p: 80px;  --d: 36px;  --t: 0.7s;  top: 24%; opacity: 0.35; }
+.match__lane--mid  { --p: 150px; --d: 80px;  --t: 0.55s; top: 52%; opacity: 0.55; }
+.match__lane--near { --p: 280px; --d: 160px; --t: 0.4s;  top: 84%; height: 2px; opacity: 0.8; }
+.match.is-playing .match__lane { animation-play-state: running; }
+@keyframes match-lane {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-1 * var(--p))); }
+}
+
+.match__car {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: min(78vw, 400px);
+  margin-left: calc(min(78vw, 400px) / -2);
+  will-change: transform;
+}
+.match__car img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.7));
+}
+
+.match__skip {
+  position: absolute;
+  right: var(--space-4);
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  background: none;
+  border: 0;
+  font-size: 0.6875rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--motion-fast) var(--ease-out);
+}
+.match__skip:hover { color: var(--color-text); }
+
+@media (min-width: 1024px) {
+  .match__eyebrow, .match__sub { font-size: 0.8125rem; }
+  .match__logo { width: 72px; margin-bottom: var(--space-6); }
+  .match__row { font-size: clamp(6.5rem, min(12vw, 19vh), 11rem); }
+  .match__word span { padding-inline: 0.09em; }
+  .match__sub strong { font-size: 2.75rem; gap: var(--space-6); }
+  .match__sub strong::before, .match__sub strong::after { width: 96px; }
+  .match__stage { height: 42%; }
+  .match__car { width: 440px; margin-left: -220px; }
+  .match__skip { right: var(--space-7); bottom: var(--space-6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .match__lane { animation: none; }
+  .match__skip { transition: none; }
+}

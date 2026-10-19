@@ -1,0 +1,498 @@
+.nowrap { white-space: nowrap; }
+
+/* ===== Hero: eyebrow, título, texto, carro sobre la pista y botón (todo en el primer pliegue) ===== */
+.hero {
+  --hero-mt: var(--space-3);
+  --hint-h: 60px; /* alto del indicador de scroll (texto + línea), reservado siempre para evitar CLS */
+  --hint-gap: var(--space-2);
+  position: relative;
+  margin-top: var(--hero-mt);
+  /* Primer pliegue completo. 100svh = viewport "pequeño": no cambia al mostrarse/ocultarse la barra del navegador. */
+  min-height: calc(100vh - var(--header-h) - env(safe-area-inset-top, 0px) - var(--hero-mt));
+  padding-bottom: calc(var(--hint-h) + var(--hint-gap) + env(safe-area-inset-bottom, 0px));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  /* Ambiente estático: velo azulado arriba y negro hacia abajo, sin recargar */
+  background:
+    radial-gradient(120% 55% at 50% 0%, rgba(0, 173, 239, 0.10), transparent 70%),
+    linear-gradient(180deg, #181b21 0%, var(--color-bg) 75%);
+}
+@supports (height: 100svh) {
+  .hero { min-height: calc(100svh - var(--header-h) - env(safe-area-inset-top, 0px) - var(--hero-mt)); }
+}
+/* Línea fina plateada de separación en el borde superior */
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0; left: var(--space-5); right: var(--space-5);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-silver), transparent);
+}
+
+.footer-cta { padding-block: var(--space-6) 0; }
+.footer-cta__inner { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+
+.eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-silver);
+}
+.footer-cta__title {
+  font-size: clamp(2rem, 8.5vw, 3.25rem);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  max-width: 22ch;       /* respaldo si no hay text-wrap: balance */
+  text-wrap: balance;
+}
+.footer-cta__text {
+  max-width: 34ch;
+  color: #bfc3ca;
+  text-wrap: pretty;
+}
+
+/* ===== Pasarela de modelos (ver loop.css): el aire lo da la sección, la pista de luz la línea del propio bucle ===== */
+.hero-loop { padding-block: var(--space-5) var(--space-2); }
+
+/* ===== CTA final (bajo el primer pliegue) ===== */
+.final-cta { padding-block: var(--space-5) var(--space-6); }
+.final-cta__inner { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); text-align: center; }
+.final-cta__question {
+  max-width: 22ch;
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+.final-cta .btn { width: 100%; }
+
+/* ===== Indicador "scroll para descubrir" =====
+   Estado base = visible y con el punto quieto en el centro de la línea (sin JS y con reduced motion).
+   El JS añade .is-running al aparecer; solo entonces (y solo con no-preference) el punto baja 3 veces. */
+.scroll-hint-sentinel { position: absolute; top: 0; left: 0; width: 1px; height: 1px; pointer-events: none; }
+
+.scroll-hint {
+  --hint-line: 40px;
+  --hint-dot: 5px;
+  --hint-cycle: 1.6s;
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--hint-gap) + env(safe-area-inset-bottom, 0px));
+  translate: -50% 0; /* centrado sin tocar transform (reservado para animaciones) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  border: 0;
+  background: none;
+  color: var(--color-silver);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.scroll-hint:focus-visible { outline-offset: 2px; border-radius: var(--radius-sm); }
+
+.scroll-hint__label {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-right: -0.26em; /* compensa el letter-spacing final para centrar ópticamente */
+  opacity: 0.85;
+  transition: opacity var(--motion-fast) var(--ease-out);
+}
+.scroll-hint:hover .scroll-hint__label,
+.scroll-hint:focus-visible .scroll-hint__label { opacity: 1; }
+
+/* Texto según puntero: táctil "Desliza", resto "Scroll" */
+.scroll-hint__label--touch { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .scroll-hint__label--touch { display: block; }
+  .scroll-hint__label--pointer { display: none; }
+}
+
+.scroll-hint__line {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: var(--hint-line);
+  background: linear-gradient(180deg, transparent, var(--color-silver) 30%, var(--color-silver) 70%, transparent);
+}
+.scroll-hint__dot {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - var(--hint-dot) / 2);
+  width: var(--hint-dot);
+  height: var(--hint-dot);
+  margin-left: calc(var(--hint-dot) / -2);
+  border-radius: 50%;
+  background: #fff;
+}
+
+@keyframes scroll-hint-run {
+  0%   { transform: translateY(calc((var(--hint-line) - var(--hint-dot)) / -2)); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(calc((var(--hint-line) - var(--hint-dot)) / 2)); opacity: 0; }
+}
+@keyframes scroll-hint-rest {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* 3 pasadas y reposo: el 2º animation (rest) devuelve el punto al centro con un fundido al terminar las 3 */
+  .scroll-hint.is-running .scroll-hint__dot {
+    animation:
+      scroll-hint-rest var(--motion-medium) var(--ease-out) calc(var(--hint-cycle) * 3) backwards,
+      scroll-hint-run var(--hint-cycle) var(--ease-out) 3;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint__label { transition: none; }
+}
+
+/* Viewport demasiado bajo: el indicador no cabe en el primer pliegue sin apretar el contenido → sin indicador ni espacio reservado.
+   (Medido: con el hero compacto de móvil hacen falta ~760px de alto; en escritorio se compacta antes, ver más abajo.) */
+@media (max-height: 759px) {
+  .scroll-hint, .scroll-hint-sentinel { display: none; }
+  .hero { padding-bottom: 0; }
+}
+/* Escritorio: el hero compacto mide ~720px + header 80px → necesita ~800px de alto */
+@media (min-width: 1024px) and (max-height: 799px) {
+  .scroll-hint, .scroll-hint-sentinel { display: none; }
+  .hero { padding-bottom: 0; }
+}
+
+/* ===== Historia de modelos: un panel por carro (foto + datos) que se despliega al hacer scroll =====
+   Estado base = todo visible (sin JS también). El JS añade .is-armed al contenedor solo cuando el
+   IntersectionObserver está disponible; entonces cada panel parte oculto y .is-in lo despliega una vez. */
+.story:focus { outline: none; } /* recibe foco por código tras el indicador; no es un control */
+.story { background: var(--color-bg); }
+
+/* --u = alto útil de una pantalla (bajo el header). Sin pin: el panel mide una pantalla y fluye normal. */
+.story { --u: calc(100vh - var(--header-h) - env(safe-area-inset-top, 0px)); }
+@supports (height: 100svh) {
+  .story { --u: calc(100svh - var(--header-h) - env(safe-area-inset-top, 0px)); }
+}
+.model-panel {
+  position: relative;
+  min-height: var(--u);
+  overflow: clip; /* la foto entra desplazada sin generar scroll horizontal */
+}
+.model-panel__stage {
+  display: flex;
+  align-items: center;
+  min-height: var(--u);
+  padding-block: var(--space-7);
+}
+/* Con pin (viewport con alto suficiente): el panel dura ~2 pantallas y el contenido queda fijo mientras
+   los datos se van desplegando con cada tramo de scroll. */
+@media (max-width: 1023px) and (min-height: 760px), (min-width: 1024px) and (min-height: 640px) {
+  .story.is-pinned .model-panel { min-height: 0; height: calc(var(--u) * 2.05); }
+  .story.is-pinned .model-panel__stage {
+    position: sticky;
+    top: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+    height: var(--u);
+    min-height: 0;
+    padding-block: var(--space-5);
+  }
+}
+/* Móvil: scroll más ágil y paneles más pegados (el escritorio conserva el ritmo pausado de arriba) */
+@media (max-width: 1023px) {
+  .story {
+    --motion-story: var(--motion-slow);
+    --motion-story-car: 700ms;
+  }
+  .model-panel__stage { padding-block: var(--space-4); }
+  .story.is-pinned .model-panel { height: calc(var(--u) * 1.5); }
+  .story.is-pinned .model-panel__stage { padding-block: var(--space-4); }
+  .model-panel__inner { gap: var(--space-5); }
+  .model-panel__media { padding-top: 0; }
+}
+/* Panel ya visto (todo desplegado): vuelve a una sola pantalla, sin pin ni recorrido largo */
+@media (max-width: 1023px) and (min-height: 760px), (min-width: 1024px) and (min-height: 640px) {
+  .story.is-pinned .model-panel.is-collapsed { height: auto; min-height: var(--u); }
+  .story.is-pinned .model-panel.is-collapsed .model-panel__stage {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: var(--u);
+  }
+}
+/* El scroll lo compensa el propio código al contraer paneles; el ancla automática del navegador se desactiva para no duplicarlo */
+html { overflow-anchor: none; }
+
+/* Botón "Subir" */
+.to-top {
+  position: fixed;
+  right: var(--space-4);
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-silver);
+  border-radius: 999px;
+  background: rgba(10, 11, 13, 0.82);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  color: var(--color-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  transform: translateY(8px);
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out), visibility 0s linear var(--motion-fast);
+}
+.to-top.is-visible {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+.to-top:active { transform: scale(0.96); }
+.to-top:hover { border-color: var(--color-accent); }
+@media (min-width: 1024px) {
+  .to-top { right: var(--space-6); bottom: var(--space-6); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .to-top { transform: none; transition: opacity var(--motion-fast) linear, visibility 0s linear var(--motion-fast); }
+  .to-top:active { transform: none; }
+}
+
+/* Marcas invisibles que el IntersectionObserver usa para saber hasta dónde se ha hecho scroll en un panel pinneado */
+.model-panel__step {
+  position: absolute;
+  left: 0;
+  top: calc(var(--u) * (1 + var(--s)));
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.model-panel + .model-panel::before {
+  content: "";
+  position: absolute;
+  top: 0; left: var(--space-5); right: var(--space-5);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-silver), transparent);
+  opacity: 0.5;
+}
+.model-panel__inner {
+  display: grid;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+/* Foto sobre halo y pista de luz (misma gramática visual que el hero) */
+.model-panel__media { position: relative; width: min(100%, 460px); margin-inline: auto; padding-top: var(--space-4); }
+.model-panel__media::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 56%;
+  width: 96%;
+  aspect-ratio: 2;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(201, 224, 245, 0.18), rgba(0, 173, 239, 0.06) 55%, transparent 100%);
+  pointer-events: none;
+}
+.model-panel__drift { position: relative; }
+.model-panel__img { width: 100%; height: auto; }
+.model-panel__track {
+  position: relative;
+  height: 1px;
+  margin-top: -4px;
+  background: linear-gradient(90deg, transparent, var(--color-silver) 25%, #fff 50%, var(--color-silver) 75%, transparent);
+}
+
+.model-panel__body { display: flex; flex-direction: column; gap: var(--space-3); text-align: left; }
+.model-panel__eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-silver);
+}
+.model-panel__count { color: var(--color-text-muted); }
+.model-panel__name {
+  font-size: clamp(2.25rem, 10vw, 3.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.model-panel__price {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.model-panel__specs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-5);
+  margin: var(--space-3) 0 0;
+}
+.model-spec { display: flex; flex-direction: column-reverse; justify-content: flex-end; padding-top: var(--space-3); border-top: 1px solid var(--color-line-soft); }
+.model-spec__value {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+.model-spec__label {
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #bfc3ca;
+}
+.model-panel__note { font-size: 0.8125rem; line-height: 1.5; color: #bfc3ca; }
+
+/* Despliegue al scroll: solo opacity y transform; cada dato espera su propio tramo de scroll (foto → nombre → precio → datos → nota) */
+.story.is-armed [data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity var(--motion-story) var(--ease-out),
+    transform var(--motion-story) var(--ease-out);
+}
+.story.is-armed [data-reveal="car"] {
+  transform: translateX(calc(var(--dir, -1) * 22%));
+  transition-duration: var(--motion-story-car);
+}
+.story.is-armed [data-reveal="line"] { transition-duration: var(--motion-story-car); }
+.story.is-armed [data-reveal="line"] { transform: scaleX(0); }
+.story.is-armed [data-reveal].is-in { opacity: 1; transform: none; }
+
+/* Reduced motion: sin desplazamiento ni escala; queda solo un fundido corto */
+@media (prefers-reduced-motion: reduce) {
+  .story.is-armed [data-reveal],
+  .story.is-armed [data-reveal="car"],
+  .story.is-armed [data-reveal="line"] {
+    transform: none;
+    transition: opacity var(--motion-fast) linear;
+  }
+}
+
+
+/* ===== Pie: aviso legal + logo ===== */
+.site-footer { border-top: 1px solid var(--color-line-soft); padding-block: var(--space-6) var(--space-7); background: var(--color-bg); }
+.site-footer__inner { display: flex; align-items: center; gap: var(--space-4); }
+.site-footer__logo { flex: none; width: 40px; height: auto; }
+.site-footer__legal { font-size: 0.8125rem; line-height: 1.45; color: #bfc3ca; }
+.site-footer__legal a {
+  position: relative;
+  color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* Área táctil de 44px sin estirar la interlínea */
+.site-footer__legal a::after { content: ""; position: absolute; inset: -14px -6px; }
+
+/* Pantallas bajas (móviles pequeños): compactar para mantener el hero en un pliegue */
+@media (max-height: 700px) {
+  .hero-loop { padding-top: var(--space-3); }
+  .footer-cta { padding-top: var(--space-5); }
+  .final-cta { padding-bottom: var(--space-5); }
+}
+
+@media (min-width: 768px) {
+  .hero { --hero-mt: var(--space-5); }
+  .footer-cta { padding-block: var(--space-7) 0; }
+  .footer-cta__inner { align-items: center; text-align: center; }
+  .footer-cta__title { max-width: 20ch; }
+  .footer-cta__text { max-width: 44ch; }
+  .final-cta .btn { width: auto; min-width: 280px; }
+  .site-footer__inner { justify-content: center; }
+}
+
+/* ===== Escritorio ===== */
+.site-footer__nav { display: none; }
+
+@media (min-width: 1024px) {
+  /* Hero cinematográfico: ocupa el primer pliegue, todo centrado */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    --hero-mt: 0px;
+    --hint-h: 64px;
+    border-radius: 0;
+    background:
+      radial-gradient(70% 45% at 50% 62%, rgba(0, 173, 239, 0.12), transparent 70%),
+      radial-gradient(120% 55% at 50% 0%, rgba(0, 173, 239, 0.08), transparent 70%),
+      linear-gradient(180deg, #14171c 0%, var(--color-bg) 80%);
+  }
+  .hero::before { left: 20%; right: 20%; }
+
+  .footer-cta { padding-block: var(--space-7) 0; }
+  .footer-cta__inner { gap: var(--space-4); }
+  .eyebrow { font-size: 0.875rem; letter-spacing: 0.3em; }
+  .footer-cta__title { font-size: clamp(3.5rem, 5.2vw, 5.5rem); max-width: 24ch; line-height: 1.05; }
+  .footer-cta__text { max-width: 52ch; font-size: 1.125rem; }
+
+  .hero-loop { padding-block: var(--space-7) var(--space-3); }
+
+  .final-cta { padding-block: var(--space-6) var(--space-8); }
+  .final-cta__inner { gap: var(--space-5); }
+  .final-cta__question { max-width: none; font-size: 1.0625rem; letter-spacing: 0.14em; }
+  .final-cta .btn { min-width: 320px; }
+
+  /* Historia: foto y datos lado a lado, alternando el lado de la foto */
+  .model-panel__stage { padding-block: var(--space-8); }
+  @media (min-height: 640px) { .story.is-pinned .model-panel__stage { padding-block: var(--space-6); } }
+  .model-panel__inner { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: var(--space-8); }
+  .model-panel:nth-child(even) .model-panel__media { order: 2; }
+  .model-panel__media { width: 100%; max-width: 500px; }
+  .model-panel__name { font-size: clamp(3rem, 4.4vw, 4.5rem); }
+  .model-panel__specs { gap: var(--space-5) var(--space-6); }
+  .model-spec__value { font-size: 1.75rem; }
+
+  /* Pie completo */
+  .site-footer { padding-block: var(--space-7); }
+  .site-footer__inner { justify-content: flex-start; gap: var(--space-6); }
+  .site-footer__logo { width: 48px; }
+  .site-footer__legal { max-width: 52ch; margin-right: auto; font-size: 0.875rem; }
+  .site-footer__nav { display: flex; gap: var(--space-6); }
+  .site-footer__nav a {
+    position: relative;
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-silver);
+    text-decoration: none;
+    transition: color var(--motion-fast) var(--ease-out);
+  }
+  .site-footer__nav a:hover { color: var(--color-accent); }
+}
+
+/* Escritorio con poco alto (portátiles): compacta el hero para que título, carro, botón e indicador quepan en el primer pliegue */
+@media (min-width: 1024px) and (max-height: 900px) {
+  .footer-cta { padding-top: var(--space-5); }
+  .hero-loop { padding-top: var(--space-4); }
+  .final-cta { padding-block: var(--space-5); }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .site-footer__nav a { transition: none; }
+}
